@@ -7,45 +7,15 @@ from openpyxl.styles import PatternFill, Font, Border
 import tkinter as tk
 from tkinter import *
 
-root = tk.Tk()
-root.configure(bg='#31393C')
-#window = Canvas(root, width=100, height=100,  bg='#31393C').grid(row=0, column=0)
 
-# URL Input Entryd
-Label(root, text='Enter job description URL:', font=("Helvetica", 16, 'bold'),
-      fg='#94DDBC', bg='#31393C').grid(row=0, column=0)
-urlBox = tk.Entry(root, text='Enter URL').grid(row=0, column=1)
-submit = tk.Button(root, text='Submit').grid(row=0, column=2)
-
-# Company Name
-Label(root, text='Company:', font=("Helvetica", 10, 'bold'),  bg='#31393C', fg='#94DDBC').grid(row=1, column=0)
-company = tk.Entry(root).grid(row=1, column=1)
-
-# Role Title
-Label(root, text='Position Title:', font=("Helvetica", 10, 'bold'),  bg='#31393C', fg='#94DDBC').grid(row=2, column=0)
-title = tk.Entry(root).grid(row=2, column=1)
-
-# Pay
-Label(root, text='Pay:', font=("Helvetica", 10, 'bold'),  bg='#31393C', fg='#94DDBC').grid(row=3, column=0)
-pay = tk.Entry(root).grid(row=3, column=1)
-
-# Link to advert
-Label(root, text='Advert Link:', font=("Helvetica", 10, 'bold'),  bg='#31393C' , fg='#94DDBC').grid(row=4, column=0)
-link = Entry(root).grid(row=4, column=1)
-
-# Date Applied
-Label(root, text='Date Applied:', font=("Helvetica", 10, 'bold'), fg='#94DDBC', bg='#31393C').grid(row=5, column=0)
-dateApplied = Entry(root).grid(row=5, column=1)
-
-# Location
-Label(root, text='Location:', font=("Helvetica", 10, 'bold'),  bg='#31393C' , fg='#94DDBC').grid(row=6, column=0)
-location = tk.Entry(root).grid(row=6, column=1)
-
-root.mainloop()
 # https://jobs.thomsonreuters.com/ShowJob/Id/353964/Software-Engineer-Internship-Summer-2020/
 # https://jobs.jobvite.com/code42/job/oYc1afw5?__jvst=Career+Site
 # https://jobs.lever.co/smartthings/88cf7759-c792-4d20-8cc9-b752f883bd03
 
+# TODO: Divide pullInfo into own function for each item
+# TODO: Create location function
+# TODO: Exception handling for closing out of excel when open while running
+# TODO: Refactor code (Won't do until basically complete with functionality)
 
 # Pulls HTML
 def pullInfo(url):
@@ -83,7 +53,7 @@ def pullInfo(url):
     # Initialize variables
     company = str(composs[0]).strip('logo')
     title = ""
-    date = datetime.datetime.now().strftime('%d' + '/' + '%m' + '/' + '%Y')
+    date = datetime.datetime.now().strftime('%m' + '/' + '%d' + '/' + '%Y')
     location = "".strip('')
 
 
@@ -92,6 +62,13 @@ def pullInfo(url):
         if "Internship" in clean[i] or "Intern" in clean[i]:
             title = str(clean[i]).strip(' ')
             break
+
+    tkCompany.insert(0, company)
+    tkTitle.insert(0, title)
+    tkPay.insert(0, 'Could not find')
+    tkLink.insert(0, url)
+    tkDateApplied.insert(0, date)
+    tkLocation.insert(0, location)
 
     return company, title, url, date, location
 
@@ -117,13 +94,28 @@ def updateXl(comp, role, link, date, location):
 
     # Imports data into cells
     ws.insert_rows(3)
+
+    # Insert company
     ws['A3'] = comp
     ws['A3'].fill = bg
+
+    # Insert role title
     ws['B3'] = role
+
+    # Insert pay
     ws['C3'] = 'N/A'
+
+    # Insert URL
     ws['D3'] = link
+
+    # Insert date applied
     ws['E3'] = date
+
+    # Insert location
     ws['F3'] = location
+
+    # Blank for drop down menus
+    # TODO: Change from blank to default values
     ws['G3'] = ''
     ws['H3'] = ''
     ws['I3'] = ''
@@ -142,7 +134,58 @@ def updateXl(comp, role, link, date, location):
 
     wb.save(file)
 
+
+def start():
+    company, title, url, date, location = pullInfo(urlBox.get())
+    updateXl(company, title, url, date, location)
+
+
+root = tk.Tk()
+root.configure(bg='#31393C')
+
+# URL Input Entry
+Label(root, text='Enter job description URL:', font=("Helvetica", 16, 'bold'),
+      fg='#94DDBC', bg='#31393C').grid(row=0, column=0)
+urlBox = tk.Entry(root)
+urlBox.grid(row=0, column=1)
+submit = tk.Button(root, text='Submit', command=start).grid(row=0, column=2)
+
+# Company Name
+Label(root, text='Company:', font=("Helvetica", 10, 'bold'),  bg='#31393C', fg='#94DDBC').grid(row=1, column=0)
+tkCompany = tk.Entry(root)
+tkCompany.grid(row=1, column=1)
+
+# Role Title
+Label(root, text='Position Title:', font=("Helvetica", 10, 'bold'),  bg='#31393C', fg='#94DDBC').grid(row=2, column=0)
+tkTitle = tk.Entry(root)
+tkTitle.grid(row=2, column=1)
+
+# Pay
+Label(root, text='Pay:', font=("Helvetica", 10, 'bold'),  bg='#31393C', fg='#94DDBC').grid(row=3, column=0)
+tkPay = tk.Entry(root)
+tkPay.grid(row=3, column=1)
+
+# Link to advert
+Label(root, text='Advert Link:', font=("Helvetica", 10, 'bold'),  bg='#31393C' , fg='#94DDBC').grid(row=4, column=0)
+tkLink = Entry(root)
+tkLink.grid(row=4, column=1)
+
+# Date Applied
+Label(root, text='Date Applied:', font=("Helvetica", 10, 'bold'), fg='#94DDBC', bg='#31393C').grid(row=5, column=0)
+tkDateApplied = Entry(root)
+tkDateApplied.grid(row=5, column=1)
+
+# Location
+Label(root, text='Location:', font=("Helvetica", 10, 'bold'),  bg='#31393C' , fg='#94DDBC').grid(row=6, column=0)
+tkLocation = tk.Entry(root)
+tkLocation.grid(row=6, column=1)
+
+# Update Excel
+tkUpdate = Button(root, text='Update Excel Spreadsheet')
+tkUpdate.grid(row=7, column=1)
+
 root.mainloop()
-#url = str(input("Enter job page URL: ")).strip(' ')
-company, title, url, date, location = pullInfo(url)
-updateXl(company, title, url, date, location)
+
+
+
+
