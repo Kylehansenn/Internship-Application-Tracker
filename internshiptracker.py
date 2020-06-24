@@ -56,7 +56,6 @@ def pullInfo(url):
     date = datetime.datetime.now().strftime('%m' + '/' + '%d' + '/' + '%Y')
     location = "".strip('')
 
-
     # Sorts through info and stores information into respected variables
     for i in range(len(clean)):
         if "Internship" in clean[i] or "Intern" in clean[i]:
@@ -70,11 +69,9 @@ def pullInfo(url):
     tkDateApplied.insert(0, date)
     tkLocation.insert(0, location)
 
-    return company, title, url, date, location
-
 
 # Function to add internship info to spreadsheet
-def updateXl(comp, role, link, date, location):
+def updateXl():
     # Opens spreadsheet
     file = 'Internship Tracker.xlsx'
     wb = openpyxl.load_workbook(file)
@@ -96,23 +93,23 @@ def updateXl(comp, role, link, date, location):
     ws.insert_rows(3)
 
     # Insert company
-    ws['A3'] = comp
+    ws['A3'] = tkCompany.get()
     ws['A3'].fill = bg
 
     # Insert role title
-    ws['B3'] = role
+    ws['B3'] = tkTitle.get()
 
     # Insert pay
     ws['C3'] = 'N/A'
 
     # Insert URL
-    ws['D3'] = link
+    ws['D3'] = tkLink.get()
 
     # Insert date applied
-    ws['E3'] = date
+    ws['E3'] = tkDateApplied.get()
 
     # Insert location
-    ws['F3'] = location
+    ws['F3'] = tkLocation.get()
 
     # Blank for drop down menus
     # TODO: Change from blank to default values
@@ -136,8 +133,7 @@ def updateXl(comp, role, link, date, location):
 
 
 def start():
-    company, title, url, date, location = pullInfo(urlBox.get())
-    updateXl(company, title, url, date, location)
+    pullInfo(urlBox.get())
 
 
 root = tk.Tk()
@@ -181,7 +177,7 @@ tkLocation = tk.Entry(root)
 tkLocation.grid(row=6, column=1)
 
 # Update Excel
-tkUpdate = Button(root, text='Update Excel Spreadsheet')
+tkUpdate = Button(root, text='Update Excel Spreadsheet', command=updateXl)
 tkUpdate.grid(row=7, column=1)
 
 root.mainloop()
