@@ -17,11 +17,53 @@ from tkinter import *
 # TODO: Exception handling for closing out of excel when open while running
 # TODO: Refactor code (Won't do until basically complete with functionality)
 
+
+def pullCompanyName(info):
+    return "could not find"
+
+
+def pullPositionTitle(info):
+    title = ''
+    for i in range(len(info)):
+        if "Internship" in info[i] or "Intern" in info[i]:
+            title = str(info[i]).strip(' ')
+            break
+
+    return title
+
+
+def pullPay(info):
+    pay = ''
+    for i in range(len(info)):
+        if '$' in info[i]:
+            pay = str(info[i])
+            break
+
+    return pay
+
+
+def pullDateApplied():
+    date = datetime.datetime.now().strftime('%m' + '/' + '%d' + '/' + '%Y')
+
+    return date
+
+
+def pullCompanyLocation(info):
+    location = ''
+    cities = open('cities.txt', 'r')
+
+    for i in cities:
+        if i in info:
+            location = i
+            break
+
+    return location
+
+
+
 # Pulls HTML
 def pullInfo(url):
-    source = requests.get(url)
-    text = source.text
-    soup = BeautifulSoup(text, features="html.parser")
+    soup = BeautifulSoup(requests.get(url).text, features="html.parser")
 
     # Grabs all information and stores into master list
     info = []
@@ -45,6 +87,7 @@ def pullInfo(url):
 
     # Removes any potential None values
     clean = []
+    print(info)
     for val in info:
         if val is not None:
             clean.append(val)
@@ -133,7 +176,29 @@ def updateXl():
 
 
 def start():
-    pullInfo(urlBox.get())
+    # Webscraper converting HTMl into readable text
+    soup = BeautifulSoup(requests.get(urlBox.get()).text, features="html.parser")
+
+    # Looks through page source for potential information
+    info = []
+    for item in soup.find_all('title'):
+        info.append(item.string)
+
+    for item in soup.find_all('h1'):
+        info.append(item.string)
+
+    for item in soup.find_all('h2'):
+        info.append(item.string)
+
+    # Call all functions for finding respected item
+    #pullInfo(urlBox.get())
+
+    tkCompany.insert(0, pullCompanyName(info))
+    tkTitle.insert(0, pullPositionTitle(info))
+    tkPay.insert(0, pullPay(info))
+    tkLink.insert(0, urlBox.get())
+    tkDateApplied.insert(0, pullDateApplied())
+    tkLocation.insert(0, pullCompanyLocation(info))
 
 
 root = tk.Tk()
