@@ -6,15 +6,14 @@ from openpyxl.styles import Alignment, Side
 from openpyxl.styles import PatternFill, Font, Border
 import tkinter as tk
 from tkinter import *
+from tkinter import messagebox
 
 
 # https://jobs.thomsonreuters.com/ShowJob/Id/353964/Software-Engineer-Internship-Summer-2020/
 # https://jobs.jobvite.com/code42/job/oYc1afw5?__jvst=Career+Site
 # https://jobs.lever.co/smartthings/88cf7759-c792-4d20-8cc9-b752f883bd03
 
-# TODO: Divide pullInfo into own function for each item
 # TODO: Create location function
-# TODO: Exception handling for closing out of excel when open while running
 # TODO: Refactor code (Won't do until basically complete with functionality)
 
 
@@ -116,63 +115,70 @@ def pullInfo(url):
 # Function to add internship info to spreadsheet
 def updateXl():
     # Opens spreadsheet
-    file = 'Internship Tracker.xlsx'
-    wb = openpyxl.load_workbook(file)
-    ws = wb.active
+    try:
+        file = 'Internship Tracker.xlsx'
+        wb = openpyxl.load_workbook(file)
+        ws = wb.active
 
-    # Style formatting
-    bg = PatternFill(start_color='595959',
-                          end_color='595959',
-                          fill_type='solid')
+        # Style formatting
+        bg = PatternFill(start_color='595959',
+                              end_color='595959',
+                              fill_type='solid')
 
-    border = Border(
-                    right=Side(border_style='thin'),
-                    top=Side(border_style='thin'),
-                    bottom=Side(border_style='thin'))
+        border = Border(
+                        right=Side(border_style='thin'),
+                        top=Side(border_style='thin'),
+                        bottom=Side(border_style='thin'))
 
-    font = Font(color='ffffff')
+        font = Font(color='ffffff')
 
-    # Imports data into cells
-    ws.insert_rows(3)
+        # Imports data into cells
+        ws.insert_rows(3)
 
-    # Insert company
-    ws['A3'] = tkCompany.get()
-    ws['A3'].fill = bg
+        # Insert company
+        ws['A3'] = tkCompany.get()
+        ws['A3'].fill = bg
 
-    # Insert role title
-    ws['B3'] = tkTitle.get()
+        # Insert role title
+        ws['B3'] = tkTitle.get()
 
-    # Insert pay
-    ws['C3'] = 'N/A'
+        # Insert pay
+        ws['C3'] = 'N/A'
 
-    # Insert URL
-    ws['D3'] = tkLink.get()
+        # Insert URL
+        ws['D3'] = tkLink.get()
 
-    # Insert date applied
-    ws['E3'] = tkDateApplied.get()
+        # Insert date applied
+        ws['E3'] = tkDateApplied.get()
 
-    # Insert location
-    ws['F3'] = tkLocation.get()
+        # Insert location
+        ws['F3'] = tkLocation.get()
 
-    # Blank for drop down menus
-    # TODO: Change from blank to default values
-    ws['G3'] = ''
-    ws['H3'] = ''
-    ws['I3'] = ''
-    ws['J3'] = ''
+        # Blank for drop down menus
+        # TODO: Change from blank to default values
+        ws['G3'] = ''
+        ws['H3'] = ''
+        ws['I3'] = ''
+        ws['J3'] = ''
 
-    # Applying style formats to cells
-    ws['C3'].alignment = Alignment(horizontal='center')
-    ws['E3'].alignment = Alignment(horizontal='right')
-    ws['E3'].font = Font(bold=True)
-    ws['A3'].fill = ws['B3'].fill = ws['C3'].fill = ws['D3'].fill = ws['E3'].fill = ws['F3'].fill = ws['G3'].fill\
-        = ws['H3'].fill = ws['I3'].fill = ws['J3'].fill = bg
-    ws['A3'].border = ws['B3'].border = ws['C3'].border = ws['D3'].border = ws['E3'].border = ws['F3'].border\
-        = ws['G3'].border = ws['H3'].border = ws['I3'].border = ws['J3'].border = border
-    ws['A3'].font = ws['B3'].font = ws['C3'].font = ws['D3'].font = ws['E3'].font = ws['F3'].font \
-        = ws['G3'].font = ws['H3'].font = ws['I3'].font = ws['J3'].font = font
+        # Applying style formats to cells
+        ws['C3'].alignment = Alignment(horizontal='center')
+        ws['E3'].alignment = Alignment(horizontal='right')
+        ws['E3'].font = Font(bold=True)
+        ws['A3'].fill = ws['B3'].fill = ws['C3'].fill = ws['D3'].fill = ws['E3'].fill = ws['F3'].fill = ws['G3'].fill\
+            = ws['H3'].fill = ws['I3'].fill = ws['J3'].fill = bg
+        ws['A3'].border = ws['B3'].border = ws['C3'].border = ws['D3'].border = ws['E3'].border = ws['F3'].border\
+            = ws['G3'].border = ws['H3'].border = ws['I3'].border = ws['J3'].border = border
+        ws['A3'].font = ws['B3'].font = ws['C3'].font = ws['D3'].font = ws['E3'].font = ws['F3'].font \
+            = ws['G3'].font = ws['H3'].font = ws['I3'].font = ws['J3'].font = font
 
-    wb.save(file)
+        wb.save(file)
+
+        messagebox.showinfo("Success", "Spreadsheet successfully updated!")
+
+    except PermissionError:
+        print("Close file first")
+        messagebox.showerror("Update Failed", "Please close Excel spreadsheet before updating.")
 
 
 def start():
